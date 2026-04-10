@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────
+#  LLMThings v2 — full stack
+#
+#  Model: qwen2.5:7b is hard-coded here. It is much more reliable
+#  than llama3.1 for tool calling with CrewAI. If you want to try
+#  another model:
+#    1. Pull it:  docker compose exec ollama ollama pull <name>
+#    2. Replace the two MONITORING_MODEL / ORCHESTRATION_MODEL
+#       values below with ollama/<name>
+#    3. Recreate the containers:
+#       docker compose --profile dockered-ollama up -d --force-recreate crew
+#
+#  Usage:
+#    docker compose --profile dockered-ollama up -d --build
+#    docker compose --profile dockered-ollama run --rm crew \
+#      python -m scripts.diagnose_ollama
+#    docker compose --profile dockered-ollama run --rm crew \
+#      python -m scripts.test_crew_e2e
+# ─────────────────────────────────────────────────────────────────
+
+services:
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: llmthings_mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    restart: unless-stopped
+
+  mcp_server:
+    build:
+      context: .
+      dockerfile: ./mcp_server/Dockerfile
+    container_name: llmthings_mcp
+    ports:
+      - "8765:8765"
+    volumes:
+      - ./data:/data
+    environment:
+      - DB_PATH=/data/monitoring.db
+      - MCP_HOST=0.0.0.0
+      - MCP_PORT=8765
+      - SEED_DEVICE_IP=192.168.1.42
+    restart: unless-stopped
+
+  ollama:
+    profiles: ["dockered-ollama"]
+    image: ollama/ollama:latest
+    container_name: llmthings_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ollama_init:
+    profiles: ["dockered-ollama"]
+    image: ollama/ollama:latest
+    container_name: llmthings_ollama_init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    entrypoint: >
+      sh -c "
+        echo 'Pulling qwen2.5:7b...' &&
+        ollama pull qwen2.5:7b &&
+        echo 'Model ready.'
+      "
+    restart: "no"
+
+  crew:
+    build:
+      context: .
+      dockerfile: ./crew/Dockerfile
+    container_name: llmthings_crew
+    depends_on:
+      mcp_server:
+        condition: service_started
+    environment:
+      - PYTHONPATH=/app
+      - DB_PATH=/data/monitoring.db
+      - MCP_SERVER_URL=http://mcp_server:8765/mcp/
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - MONITORING_MODEL=ollama/qwen2.5:7b
+      - ORCHESTRATION_MODEL=ollama/qwen2.5:7b
+      - OTEL_SDK_DISABLED=true
+      - CREWAI_DISABLE_TELEMETRY=true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./data:/data
+    stdin_open: true
+    tty: true
+    command: ["sleep", "infinity"]
+
+volumes:
+  ollama_data:
