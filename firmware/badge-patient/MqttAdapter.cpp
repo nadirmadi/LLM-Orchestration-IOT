@@ -10,7 +10,7 @@ extern SoundService sound;
 WiFiClient wifiClient;
 PubSubClient mqtt(wifiClient);
 
-const char *BROKER_IP = "192.168.89.25";
+const char *BROKER_IP = "192.168.135.25";
 const int BROKER_PORT = 1883;
 const char *DEVICE_ID = "badge-001";
 

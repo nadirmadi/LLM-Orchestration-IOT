@@ -74,8 +74,15 @@ static String buildCapabilitiesJson() {
     json +=  "\"details\":{\"topic\":\"badge/001/sound\"}}";
     json += "],";
 
-    // neighbors — empty because the badge is mobile
-    json += "\"neighbors\":[]";
+    // Mesh neighbors — the badge knows its fixed infrastructure peers
+    // so discovery can reach the whole deployment from the badge.
+    // EDIT THESE IPs TO MATCH YOUR DEPLOYMENT.
+    json += "\"neighbors\":[";
+    json += "{\"device_id\":\"esp32-cam-001\",";
+    json += "\"ip\":\"192.168.135.77\"},";
+    json += "{\"device_id\":\"esp32-fixe-001\",";
+    json += "\"ip\":\"192.168.135.1\"}";
+    json += "]";
     json += "}";
 
     return json;

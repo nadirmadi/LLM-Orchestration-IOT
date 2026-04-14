@@ -42,7 +42,7 @@ services:
       - DB_PATH=/data/monitoring.db
       - MCP_HOST=0.0.0.0
       - MCP_PORT=8765
-      - SEED_DEVICE_IP=192.168.1.42
+      - SEED_DEVICE_IP=${SEED_DEVICE_IP:-192.168.135.24:80}
     restart: unless-stopped
 
   ollama:
@@ -94,6 +94,7 @@ services:
       - ORCHESTRATION_MODEL=ollama/qwen2.5:7b
       - OTEL_SDK_DISABLED=true
       - CREWAI_DISABLE_TELEMETRY=true
+      - SEED_DEVICE_IP=${SEED_DEVICE_IP:-192.168.135.24:80}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
