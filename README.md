@@ -25,18 +25,18 @@ catalogue of **MCP tools**, keeping execution bounded and auditable.
 
 ## Features
 
-- 🧠 **Two collaborating LLM agents** (Monitoring + Orchestration) built on CrewAI, talking to
+-  **Two collaborating LLM agents** (Monitoring + Orchestration) built on CrewAI, talking to
   each other in natural language and answering in canonical JSON.
-- 🔌 **MCP abstraction layer** — 8 standardized tools decouple agent reasoning from device IPs,
+-  **MCP abstraction layer** — 8 standardized tools decouple agent reasoning from device IPs,
   protocols and payloads.
-- 🛰️ **Zero-config mesh discovery** — a BFS over the neighbor graph finds the whole deployment
+-  **Zero-config mesh discovery** — a BFS over the neighbor graph finds the whole deployment
   from a single seed device; the Monitoring Agent even triggers it on its own when the DB is empty.
-- 🔐 **Privilege separation** — only the Monitoring Agent can write to the registry; the
+-  **Privilege separation** — only the Monitoring Agent can write to the registry; the
   Orchestration Agent is limited to action commands.
 - ⚡ **Energy-aware orchestration** — sensors default to light sleep and are woken progressively,
   on demand.
-- 📦 **One-command stack** — broker, MCP server, local LLM and agents all run via Docker Compose.
-- ✅ **Validated on real ESP32s** end-to-end, plus a 6-script incremental test suite.
+-  **One-command stack** — broker, MCP server, local LLM and agents all run via Docker Compose.
+-  **Validated on real ESP32s** end-to-end, plus a 6-script incremental test suite.
 
 ## Architecture
 
@@ -61,8 +61,8 @@ catalogue of **MCP tools**, keeping execution bounded and auditable.
 
 | Agent | Responsibility | Tools | DB writes |
 |-------|----------------|-------|:---:|
-| **Monitoring Agent** | Discovers the infrastructure and maintains the device registry — the single source of truth. | the 5 `monitoring_*` tools | ✅ only writer |
-| **Orchestration Agent** | Interprets the intent and turns it into concrete device actions. | the 3 `orchestration_*` tools + CrewAI delegation | ❌ |
+| **Monitoring Agent** | Discovers the infrastructure and maintains the device registry — the single source of truth. | the 5 `monitoring_*` tools |  only writer |
+| **Orchestration Agent** | Interprets the intent and turns it into concrete device actions. | the 3 `orchestration_*` tools + CrewAI delegation |  |
 
 The Orchestration Agent has `allow_delegation=True`, so CrewAI lets it ask the Monitoring Agent
 free-form questions (e.g. *"Which active devices in the corridor expose a camera service?"*).
