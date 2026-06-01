@@ -62,7 +62,7 @@ catalogue of **MCP tools**, keeping execution bounded and auditable.
 | Agent | Responsibility | Tools | DB writes |
 |-------|----------------|-------|:---:|
 | **Monitoring Agent** | Discovers the infrastructure and maintains the device registry — the single source of truth. | the 5 `monitoring_*` tools |  only writer |
-| **Orchestration Agent** | Interprets the intent and turns it into concrete device actions. | the 3 `orchestration_*` tools + CrewAI delegation |  |
+| **Orchestration Agent** | Interprets the intent and turns it into concrete device actions. | the 3 `orchestration_*` tools + CrewAI delegation | not at all |
 
 The Orchestration Agent has `allow_delegation=True`, so CrewAI lets it ask the Monitoring Agent
 free-form questions (e.g. *"Which active devices in the corridor expose a camera service?"*).
@@ -217,14 +217,14 @@ reasoning guided by its backstory.
 Six incremental scripts validate the system from "no dependencies" up to "full stack with the
 LLMs". Run them bottom-up.
 
-| Script | Validates | LLM? |
-|--------|-----------|:---:|
-| `test_local` | Database CRUD + canonical JSON shape | ❌ |
-| `test_e2e_combined` | Discovery + MCP tools against 4 fake ESP32s | ❌ |
-| `test_crew_connection` | CrewAI ⇄ MCP wiring and tool discovery | ❌ |
-| `test_crew_e2e` | Full kickoff: 2 LLMs + 4 fake ESP32s | ✅ |
-| `test_crew_real_badge` | Kickoff against the real physical badge | ✅ |
-| `test_crew_mesh_autodiscover` | Kickoff on an empty DB — agent triggers discovery | ✅ |
+| Script | Validates |
+|--------|-----------|
+| `test_local` | Database CRUD + canonical JSON shape |
+| `test_e2e_combined` | Discovery + MCP tools against 4 fake ESP32s |
+| `test_crew_connection` | CrewAI ⇄ MCP wiring and tool discovery |
+| `test_crew_e2e` | Full kickoff: 2 LLMs + 4 fake ESP32s |
+| `test_crew_real_badge` | Kickoff against the real physical badge |
+| `test_crew_mesh_autodiscover` | Kickoff on an empty DB — agent triggers discovery |
 
 ## Benchmarks
 
